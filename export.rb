@@ -13,7 +13,7 @@ public_dir   = "public"
 liked_dir    = "liked"
 where        = public_dir
 image_subdir = "images"
-download_num = 45  # number of posts to download
+download_num = -1  # number of posts to download, use -1 for ALL
 limit        = 3   # number of posts requested each time
 
 class TumblrPhotoExport
@@ -34,18 +34,24 @@ class TumblrPhotoExport
       @whatkey  = "posts"
     end
 
+    # URL to get Posts
+    @url          = "http://api.tumblr.com/v2/blog/#{@username}.tumblr.com/#{@what}?api_key=#{@api_key}"
+
     @public_dir   = public_dir
     @liked_dir    = liked_dir
     @image_subdir = image_subdir
     @limit        = limit
     @download_num = download_num
+    if @download_num == -1
+      puts "down -1"
+      @download_num = get_results_count
+    else
+      puts "down ok"
+    end
 
     @index_arr    = []
     @indexstart   = "---\nARCHIVE: "
     @indexend     = "\n---"
-
-    # URL to get Posts
-    @url          = "http://api.tumblr.com/v2/blog/#{@username}.tumblr.com/#{@what}?api_key=#{@api_key}"
 
     create_dirs
 
@@ -60,10 +66,12 @@ class TumblrPhotoExport
 
   def get_results_count
 
-    response        = HTTParty.get(@url + "&limit=1&offset=0")
+    response        = HTTParty.get(@url)
     parsed_response = JSON.parse(response.body)
+    total_count     = parsed_response['response'][@whatkey].length
 
-    return parsed_response['response']['posts']
+    puts "total count: #{total_count}"
+    return total_count
 
   end
 
@@ -303,9 +311,6 @@ class TumblrPhotoExport
   end
 
   def start
-
-    # uncomment next line to download all your posts
-    # download_num = get_results_count
 
     parsed = 0
     rest = @download_num % @limit
