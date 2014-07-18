@@ -29,9 +29,11 @@ class TumblrPhotoExport
     if @what == "likes"
       @where    = liked_dir
       @whatkey  = "liked_posts"
+      @whatcount= "liked_count"
     else
       @where    = public_dir
       @whatkey  = "posts"
+      @whatcount= "total_posts"
     end
 
     # URL to get Posts
@@ -43,10 +45,7 @@ class TumblrPhotoExport
     @limit        = limit
     @download_num = download_num
     if @download_num == -1
-      puts "down -1"
       @download_num = get_results_count
-    else
-      puts "down ok"
     end
 
     @index_arr    = []
@@ -68,7 +67,7 @@ class TumblrPhotoExport
 
     response        = HTTParty.get(@url)
     parsed_response = JSON.parse(response.body)
-    total_count     = parsed_response['response'][@whatkey].length
+    total_count     = parsed_response['response'][@whatcount]
 
     puts "total count: #{total_count}"
     return total_count
