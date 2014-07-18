@@ -51,6 +51,6 @@ Export the post and images from your tumblr blog, or post and images from your [
 
 ## Todo
 
-* [ ] Refactor write to insert correct contents depending on post type
+* [x] Refactor write to insert correct contents depending on post type
 * [ ] Create index page for posts/likes
 * [ ] Build a static site from downloaded files
