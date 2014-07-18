@@ -19,6 +19,8 @@ Export the post and images from your tumblr blog, or post and images from your [
 
         $ git clone git@github.com:zigotica/tumblr-full-backup.git
 
+    If you do not use Git, you can simply download the project in [.zip format](https://github.com/zigotica/tumblr-full-backup/archive/master.zip)
+
 2. (Optionally) modify defaults at export.rb file: `public_dir`, `liked_dir`, `image_subdir`, `download_num`, `limit`
  
 3. Register a new app, this will allow you to fetch data from Tumblr programmatically:  [https://www.tumblr.com/oauth/register](https://www.tumblr.com/oauth/register)
