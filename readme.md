@@ -21,9 +21,7 @@ Export the post and images from your tumblr blog, or post and images from your [
 
 2. (Optionally) modify defaults at export.rb file: `public_dir`, `liked_dir`, `image_subdir`, `download_num`, `limit`
  
-3. Register a new app, this will allow you to fetch data from Tumblr programmatically:  
-
-        https://www.tumblr.com/oauth/register
+3. Register a new app, this will allow you to fetch data from Tumblr programmatically:  [https://www.tumblr.com/oauth/register](https://www.tumblr.com/oauth/register)
 
 4. Copy the `OAuth Consumer Key` of the app, you will need it later. 
 
