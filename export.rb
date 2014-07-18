@@ -27,9 +27,11 @@ class TumblrPhotoExport
     @what         = what
     
     if @what == "likes"
-      @where = liked_dir
+      @where    = liked_dir
+      @whatkey  = "liked_posts"
     else
-      @where = public_dir
+      @where    = public_dir
+      @whatkey  = "posts"
     end
 
     @public_dir   = public_dir
@@ -75,13 +77,12 @@ class TumblrPhotoExport
       return
     end
 
-    if @what == "posts"
-      parse_posts(parsed_response['response']['posts'])
+    if parsed_response['response'][@whatkey].length > 0
+      parse_posts(parsed_response['response'][@whatkey])
+      return true
     else
-      parse_posts(parsed_response['response']['liked_posts'])
+      return
     end
-
-    return true
 
   end
 
