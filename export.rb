@@ -13,7 +13,7 @@ public_dir   = "public"
 liked_dir    = "liked"
 where        = public_dir
 image_subdir = "images"
-download_num = 17  # number of posts to download
+download_num = 45  # number of posts to download
 limit        = 3   # number of posts requested each time
 
 class TumblrPhotoExport
@@ -90,82 +90,163 @@ class TumblrPhotoExport
     $i = 0
     $LEN = posts.length
     until $i == $LEN
-        # common post data:
-        $post         = posts[$i]
-        $id           = $post['id']
-        $slug         = $post['slug']
-        if $slug == ""
-          $slug       = $id
-        end
-        $type         = $post['type']
-        $date         = $post['date']
-        $timestamp    = $post['timestamp']
-        $format       = $post['format']
-        $source_url   = $post['source_url']
-        $source_title = $post['source_title']
-        $short_url    = $post['short_url']
-        $post_url     = $post['post_url']
-        $tags         = $post['tags']
-        $state        = $post['state']
-
-        # type = text:
-        $title        = $post['title']
-        $body         = $post['body']
-
-        # type = quote:
-        $text         = $post['text']
-        $source       = $post['source']
-
-        # type = link:
-        $title        = $post['title']
-        $url          = $post['url']
-        $description  = $post['description']
-
-        # type = video:
-        $caption      = $post['caption']
-        $player       = $post['player']
-
-        # type = photo (just 1 photo, no photosets so far)
-        $caption      = $post['caption']
-        $image_url    = $post['photos'][0]['original_size']['url']
-
-        # basic format translators: markdown, …
-        if $format == "html"
-          $body       = ReverseMarkdown.convert $body
-          $caption    = ReverseMarkdown.convert $caption
-        end
-
-        # if type = photo, write image to disk
-        if $type == "photo"
-          begin
-            $file = File.basename($image_url)
-            File.open("./#{@where}/#{@image_subdir}/" + $file, "wb") do |f| 
-              puts "downloading image #{$image_url}"
-              f.write HTTParty.get($image_url).parsed_response
-            end
-          rescue => e
-            puts ":( #{e}"
-          end
-        end
-
-        # finally, write post to disk
-        begin
-          $file = "#$slug.md"
-          File.open("./#{@where}/" + $file, "wb") do |f| 
-            puts "writing post #$slug"
-            f.write "\n---\nlayout: post\ntitle: #$title \npath: #$slug\ntype: #$type\ntags: #$tags\ncreated: #$date\n---\n\n#$body\n#$caption"
-          end
-        rescue => e
-          puts ":( #{e}"
-        end
+        $post = posts[$i]
+        parse_post_common($post)
+        send("parse_post_#{$type}".to_sym, $post)
 
         $i += 1
     end
 
   end
 
-  def write_file(folder, filename, content)
-    #
+  def parse_post_common(post)
+    # common post data:   
+    $id           = post['id']
+    $slug         = post['slug']
+    if $slug == ""
+      $slug       = $id
+    end
+    $type         = post['type']
+    $date         = post['date']
+    $timestamp    = post['timestamp']
+    $format       = post['format']
+    $source_url   = post['source_url']
+    $source_title = post['source_title']
+    $short_url    = post['short_url']
+    $post_url     = post['post_url']
+    $tags         = post['tags']
+    $state        = post['state']
+    # common md output content
+    $headerstart  = "---\nlayout: post"
+    $headerend    = "path: #$slug\ntype: #$type\ntags: #$tags\ncreated: #$date\n---\n\n"
+  end
+
+  def parse_post_text(post)
+    puts "parse_post_text"
+    $title        = post['title']
+    $body         = post['body']
+    $headercustom = "title: #$title"
+
+    if $format == "html"
+      $body       = get_md($body)
+    end
+
+    # write post to disk
+    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$body")
+  end
+
+  def parse_post_quote(post)
+    puts "parse_post_quote"
+    $text         = post['text']
+    $source       = post['source']
+    $headercustom = "title: no title"
+
+    if $format == "html"
+      $text       = get_md($text)
+      $source     = get_md($source)
+    end
+
+    # write post to disk
+    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$text\n\n#$source")
+  end
+
+  def parse_post_link(post)
+    puts "parse_post_link"
+    $title        = post['title']
+    $url          = post['url']
+    $url          = "[#$title](#$url)"
+    $description  = post['description']
+    $headercustom = "title: #$title"
+
+    if $format == "html"
+      $description = get_md($description)
+    end
+
+    # write post to disk
+    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$url\n#$description")
+  end
+
+  def parse_post_video(post)
+    puts "parse_post_video"
+    $caption      = $post['caption']
+    $player       = $post['player']
+    $headercustom = "title: no title"
+
+    if $format == "html"
+      $caption    = get_md($caption)
+    end
+
+    # write post to disk
+    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$caption")
+  end
+
+  def parse_post_photo(post)
+    puts "parse_post_photo"
+    $caption      = post['caption']
+    $image_url    = post['photos'][0]['original_size']['url']
+    $extension    = $image_url.split('.').last
+    $filename     = $slug+"."+$extension
+    $headercustom = "title: no title"
+
+    if $format == "html"
+      $caption     = get_md($caption)
+    end
+
+    # write source image to disk
+    write_file("./#{@where}/#{@image_subdir}/", $image_url, $filename)
+    # write post to disk
+    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$caption")
+  end
+
+  def parse_post_chat(post)
+    puts "parse_post_chat"
+    # same format as text
+    parse_post_text(post)
+  end
+
+  def parse_post_audio(post)
+    puts "parse_post_audio"
+    $caption      = $post['caption']
+    $url          = $post['audio_url']
+    $url          = "[#$url](#$url)"
+    $headercustom = "title: no title"
+
+    if $format == "html"
+      $caption    = get_md($caption)
+    end
+
+    # write post to disk
+    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$url\n#$caption")
+  end
+
+  def parse_post_answer(post)
+    # nothing to see here, old post type
+  end
+
+  def get_md(html)
+    return ReverseMarkdown.convert html
+  end
+
+  def write_file(folder, fileuri, filename)
+    filename = File.basename(filename)
+
+    begin
+      File.open(folder + filename, "wb") do |f| 
+        f.write HTTParty.get(fileuri).parsed_response
+      end
+    rescue => e
+      puts ":( #{e}"
+    end
+  end
+
+  def write_post(folder, filename, content)
+    begin
+      File.open(folder + filename, "wb") do |f| 
+        f.write content
+      end
+    rescue => e
+      puts ":( #{e}"
+    end
   end
 
   def start
