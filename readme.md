@@ -53,6 +53,6 @@ Export the post and images from your tumblr blog, or post and images from your [
 
 ## Todo
 
-[ ] Create index page for posts/likes
-[ ] Write correct body/caption contents depending on post type
-[ ] Build a static site from downloaded files
+* [ ] Create index page for posts/likes
+* [ ] Write correct body/caption contents depending on post type
+* [ ] Build a static site from downloaded files
