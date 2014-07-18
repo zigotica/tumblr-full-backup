@@ -13,8 +13,8 @@ public_dir   = "public"
 liked_dir    = "liked"
 where        = public_dir
 image_subdir = "images"
-download_num = 300  # number of posts to download
-limit        = 10   # number of posts requested each time
+download_num = 17  # number of posts to download
+limit        = 3   # number of posts requested each time
 
 class TumblrPhotoExport
 
@@ -174,8 +174,12 @@ class TumblrPhotoExport
     # download_num = get_results_count
 
     parsed = 0
-    batchs = (@download_num / @limit) + (@download_num % @limit)
-    puts "batchs #{batchs}"
+    rest = @download_num % @limit
+    if rest > 1
+      rest = 1
+    end
+    batchs = (@download_num / @limit) + rest
+    puts "batchs download_num #{download_num} limit #{limit} batchs #{batchs}"
 
     if (@download_num < @limit)
       batchs = 1
