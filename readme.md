@@ -32,7 +32,7 @@ Export the post and images from your tumblr blog, or post and images from your [
         export TUMBLR_USERNAME="MY_FANTASTIC_TUMBLR_USERNAME"  
         export TUMBLR_CONSUMER_KEY="MY_DAUNTING_OAUTH_CONSUMER_KEY"  
 
-## Download posts with images
+## Download posts, including images
 
 1. Go to the app directory and run [optional if performed step 5]:  
 
@@ -41,7 +41,7 @@ Export the post and images from your tumblr blog, or post and images from your [
 2. Posts and images from your Tumblr blog will be downloaded to the `public_dir` folder. 
 
 
-## Download likes with images
+## Download likes, including images
 
 1. Enable the option ["Share posts you like"](https://www.tumblr.com/settings/dashboard).
 
