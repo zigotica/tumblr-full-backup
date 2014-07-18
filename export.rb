@@ -40,6 +40,10 @@ class TumblrPhotoExport
     @limit        = limit
     @download_num = download_num
 
+    @index_arr    = []
+    @indexstart   = "---\nARCHIVE: "
+    @indexend     = "\n---"
+
     # URL to get Posts
     @url          = "http://api.tumblr.com/v2/blog/#{@username}.tumblr.com/#{@what}?api_key=#{@api_key}"
 
@@ -94,6 +98,17 @@ class TumblrPhotoExport
         $post = posts[$i]
         parse_post_common($post)
         send("parse_post_#{$type}".to_sym, $post)
+        # push basic data to index array so we can build the archive
+        if $title == nil
+          $title       = $slug
+        end
+        @index_arr.push Hash[
+            "STATE"   => $state, 
+            "TYPE"    => $type, 
+            "DATE"    => $date, 
+            "SLUG"    => $slug, 
+            "TITLE"   => $title
+        ]
 
         $i += 1
     end
@@ -276,6 +291,17 @@ class TumblrPhotoExport
     end
   end
 
+  def write_index(folder, content)
+    begin
+      File.open(folder + "______index.md", "wb") do |f| 
+        f.write content
+      end
+    rescue => e
+      puts ":( #{e}"
+    end
+
+  end
+
   def start
 
     # uncomment next line to download all your posts
@@ -309,6 +335,7 @@ class TumblrPhotoExport
 
     puts "\033[32m#{"Aaaaand we're done, parsed #{parsed} "}\033[0m"
 
+    write_index("./#{@where}/", "\n#@indexstart #@index_arr #@indexend")
   end
 
 end
