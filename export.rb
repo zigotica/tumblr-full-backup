@@ -118,8 +118,8 @@ class TumblrPhotoExport
     $tags         = post['tags']
     $state        = post['state']
     # common md output content
-    $headerstart  = "---\nlayout: post"
-    $headerend    = "path: #$slug\ntype: #$type\npost_url: #$post_url\ntags: #$tags\ncreated: #$date\n---\n\n"
+    $headerstart  = "---\nlayout: post\ntype: #$type"
+    $headerend    = "path: #$slug\npost_url: #$post_url\ntags: #$tags\ncreated: #$date\n---\n\n"
   end
 
   def parse_post_text(post)
@@ -184,17 +184,42 @@ class TumblrPhotoExport
   def parse_post_photo(post)
     puts "parse_post_photo"
     $caption      = post['caption']
-    $image_url    = post['photos'][0]['original_size']['url']
-    $extension    = $image_url.split('.').last
-    $filename     = $slug+"."+$extension
-    $headercustom = "title: no title"
+    $images_arr   = []
+    $num_photos   = post['photos'].length
+    $headercustom = "num_photos: #$num_photos\ntitle: no title"
+    $folder       = "./#{@where}/"
+    $subfolder    = "#{@image_subdir}/"
+
+    # write all source images to disk
+    $num_photos.times do |i|
+      $image        = post['photos'][i]
+      $image_url    = $image['original_size']['url']
+      $image_cap    = $image['caption']
+      $image_str    = ""
+      $extension    = $image_url.split('.').last
+      $filename     = $slug+"_"+i.to_s+"."+$extension
+
+      if $format == "html"
+        $image_cap     = get_md($image_cap)
+      end
+
+      if $image_cap == ""
+        $image_str  = "[#$slug](#$folder#$subfolder#$filename)"
+      else
+        $image_str  = "[#$image_cap](#$folder#$subfolder#$filename)"
+      end
+
+      $images_arr.push $image_str
+      write_file("#$folder#$subfolder", $image_url, $filename)
+    end
 
     if $format == "html"
       $caption     = get_md($caption)
     end
 
-    # write source image to disk
-    write_file("./#{@where}/#{@image_subdir}/", $image_url, $filename)
+    # inject images array into $headercustom
+    $headercustom += "\nimages: #$images_arr"
+
     # write post to disk
     write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$caption")
   end

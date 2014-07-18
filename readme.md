@@ -52,6 +52,7 @@ Export the post and images from your tumblr blog, or post and images from your [
 ## Todo
 
 * [x] Refactor write to insert correct contents depending on post type
-* [ ] Add downloaded image to created photo post
+* [x] Manage photo sets
+* [x] Add downloaded image info to post header
 * [ ] Create index page for posts/likes
 * [ ] Build a static site from downloaded files
