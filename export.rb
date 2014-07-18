@@ -100,7 +100,7 @@ class TumblrPhotoExport
   end
 
   def parse_post_common(post)
-    # common post data:   
+    # common post data:  
     $id           = post['id']
     $slug         = post['slug']
     if $slug == ""
@@ -113,12 +113,13 @@ class TumblrPhotoExport
     $source_url   = post['source_url']
     $source_title = post['source_title']
     $short_url    = post['short_url']
+    $blog_name    = post['blog_name'] # useful to keep track in liked posts
     $post_url     = post['post_url']
     $tags         = post['tags']
     $state        = post['state']
     # common md output content
     $headerstart  = "---\nlayout: post"
-    $headerend    = "path: #$slug\ntype: #$type\ntags: #$tags\ncreated: #$date\n---\n\n"
+    $headerend    = "path: #$slug\ntype: #$type\npost_url: #$post_url\ntags: #$tags\ncreated: #$date\n---\n\n"
   end
 
   def parse_post_text(post)
