@@ -67,7 +67,7 @@ class TumblrPhotoExport
 
     response        = HTTParty.get(@url)
     parsed_response = JSON.parse(response.body)
-    total_count     = parsed_response['response'][@whatcount]
+    total_count     = parsed_response['response'][@whatcount].to_i
 
     puts "total count: #{total_count}"
     return total_count
