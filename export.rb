@@ -25,7 +25,7 @@ class TumblrPhotoExport
     @username     = username
     @api_key      = api_key
     @what         = what
-    
+
     if @what == "likes"
       @where    = liked_dir
       @whatkey  = "liked_posts"
@@ -84,7 +84,7 @@ class TumblrPhotoExport
     status_msg  = parsed_response['meta']['msg']
 
     if status_code != 200
-      puts "\033[91m#{status_msg}\033[0m" 
+      puts "\033[91m#{status_msg}\033[0m"
       return
     end
 
@@ -110,10 +110,10 @@ class TumblrPhotoExport
           $title       = $slug
         end
         @index_arr.push Hash[
-            "STATE"   => $state, 
-            "TYPE"    => $type, 
-            "DATE"    => $date, 
-            "SLUG"    => $slug, 
+            "STATE"   => $state,
+            "TYPE"    => $type,
+            "DATE"    => $date,
+            "SLUG"    => $slug,
             "TITLE"   => $title
         ]
 
@@ -123,7 +123,7 @@ class TumblrPhotoExport
   end
 
   def parse_post_common(post)
-    # common post data:  
+    # common post data:
     $id           = post['id']
     $slug         = post['slug']
     if $slug == ""
@@ -220,7 +220,7 @@ class TumblrPhotoExport
       $image_cap    = $image['caption']
       $image_str    = ""
       $extension    = $image_url.split('.').last
-      $filename     = $slug+"_"+i.to_s+"."+$extension
+      $filename     = "#$slug"+"_"+i.to_s+"."+$extension
 
       if $format == "html"
         $image_cap     = get_md($image_cap)
@@ -280,7 +280,7 @@ class TumblrPhotoExport
     filename = File.basename(filename)
 
     begin
-      File.open(folder + filename, "wb") do |f| 
+      File.open(folder + filename, "wb") do |f|
         f.write HTTParty.get(fileuri).parsed_response
       end
     rescue => e
@@ -290,7 +290,7 @@ class TumblrPhotoExport
 
   def write_post(folder, filename, content)
     begin
-      File.open(folder + filename, "wb") do |f| 
+      File.open(folder + filename, "wb") do |f|
         f.write content
       end
     rescue => e
@@ -300,7 +300,7 @@ class TumblrPhotoExport
 
   def write_index(folder, content)
     begin
-      File.open(folder + "______index.md", "wb") do |f| 
+      File.open(folder + "______index.md", "wb") do |f|
         f.write content
       end
     rescue => e
