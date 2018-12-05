@@ -1,7 +1,7 @@
 tumblr-full-backup
 ==================
 
-Export the post and images from your tumblr blog, or post and images from your [liked posts](https://www.tumblr.com/likes) in Tumblr. Heavily inspired by, mmmmm, ripped off from [tumblr-photo-export](https://github.com/javierarce/tumblr-photo-export/)
+Export the post, images, and videos from your tumblr blog, or from your [liked posts](https://www.tumblr.com/likes) in Tumblr. Heavily inspired by, mmmmm, ripped off from [tumblr-photo-export](https://github.com/javierarce/tumblr-photo-export/)
 
 ## Dependencies
 
@@ -38,7 +38,7 @@ Export the post and images from your tumblr blog, or post and images from your [
 
         ruby export.rb posts [TUMBLR_USERNAME TUMBLR_CONSUMER_KEY]
 
-2. Posts and images from your Tumblr blog will be downloaded to the `public_dir` folder. 
+2. Content from your Tumblr blog will be downloaded to the `public_dir` folder. 
 
 
 ## Download likes, including images
@@ -49,7 +49,7 @@ Export the post and images from your tumblr blog, or post and images from your [
 
         ruby export.rb likes [TUMBLR_USERNAME TUMBLR_CONSUMER_KEY]
 
-3. Posts and images from posts you liked will be downloaded to the `liked_dir` folder. 
+3. Content from posts you liked will be downloaded to the `liked_dir` folder. 
 
 ## Todo
 
