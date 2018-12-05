@@ -227,8 +227,6 @@ class TumblrPhotoExport
 
       # write post to disk
       write_post("./#{@where}/", "video_#$slug.html", $html)
-    else
-
     end
   end
 
