@@ -13,14 +13,15 @@ public_dir   = "public"
 liked_dir    = "liked"
 where        = public_dir
 image_subdir = "images"
+video_subdir = "videos"
 download_num = -1  # number of posts to download, use -1 for ALL
 limit        = 3   # number of posts requested each time
 
 class TumblrPhotoExport
 
-  attr_accessor :username, :api_key, :what, :where, :public_dir, :liked_dir, :image_subdir, :limit, :download_num, :url
+  attr_accessor :username, :api_key, :what, :where, :public_dir, :liked_dir, :image_subdir, :video_subdir, :limit, :download_num, :url
 
-  def initialize(username, api_key, what, where, public_dir, liked_dir, image_subdir, limit, download_num)
+  def initialize(username, api_key, what, where, public_dir, liked_dir, image_subdir, video_subdir, limit, download_num)
 
     @username     = username
     @api_key      = api_key
@@ -42,6 +43,7 @@ class TumblrPhotoExport
     @public_dir   = public_dir
     @liked_dir    = liked_dir
     @image_subdir = image_subdir
+    @video_subdir = video_subdir
     @limit        = limit
     @download_num = download_num
     if @download_num == -1
@@ -60,6 +62,7 @@ class TumblrPhotoExport
 
     Dir.mkdir("./#{@where}") unless File.directory?("./#{@where}")
     Dir.mkdir("./#{@where}/#{@image_subdir}") unless File.directory?("./#{@where}/#{@image_subdir}")
+    Dir.mkdir("./#{@where}/#{@video_subdir}") unless File.directory?("./#{@where}/#{@video_subdir}")
 
   end
 
@@ -192,16 +195,41 @@ class TumblrPhotoExport
 
   def parse_post_video(post)
     puts "parse_post_video"
-    $caption      = $post['caption']
-    $player       = $post['player']
-    $headercustom = "title: no title"
+    $video_caption = $post['caption']
+    $player        = $post['player']
+    $headercustom  = "title: no title"
+    $video_url     = $post['video_url']
 
-    if $format == "html"
-      $caption    = get_md($caption)
+    # Only download if it's a video with a direct URL
+    if $video_url != "" && $video_url != nil
+      $folder       = "./#{@where}/"
+      $subfolder    = "#{@video_subdir}/"
+      $video_str    = ""
+      $extension    = $video_url.split('.').last
+      $filename     = "#$slug"+"_"+"."+$extension
+
+      if $video_caption == ""
+        $video_str  = "[#$slug](#$folder#$subfolder#$filename)"
+      else
+        $video_str  = "[#$video_caption](#$folder#$subfolder#$filename)"
+      end
+
+      if not File.exists?("#$folder#$subfolder/" + $filename)
+        write_file("#$folder#$subfolder", $video_url, $filename)
+      end
+
+      # Build video HTML page
+      $html = "<html><body>"
+      $html += "<p>" + $video_caption + "</p>"
+      $html += "<video controls><source src=\"" + $subfolder +
+              "/" + $filename + "\" type=\"video/" + $extension + "\"></video>"
+      $html += "</body></html>"
+
+      # write post to disk
+      write_post("./#{@where}/", "video_#$slug.html", $html)
+    else
+
     end
-
-    # write post to disk
-    write_post("./#{@where}/", "#$slug.md", "\n#$headerstart\n#$headercustom\n#$headerend\n\n#$caption")
   end
 
   def parse_post_photo(post)
@@ -331,10 +359,10 @@ class TumblrPhotoExport
       if parsed + @limit > @download_num
         @limit = @download_num - parsed
       end
+      break if @limit < 1
       puts "::::::::::::: step #{i} parsed #{parsed} limit #{@limit} offset #{offset}"
       result = get_results(@limit, offset)
       parsed += @limit
-      break if !result
     end
 
     puts "\033[32m#{"Aaaaand we're done, parsed #{parsed} "}\033[0m"
@@ -344,5 +372,5 @@ class TumblrPhotoExport
 
 end
 
-tumblr = TumblrPhotoExport.new(username, api_key, what, where, public_dir, liked_dir, image_subdir, limit, download_num)
+tumblr = TumblrPhotoExport.new(username, api_key, what, where, public_dir, liked_dir, image_subdir, video_subdir, limit, download_num)
 tumblr.start
